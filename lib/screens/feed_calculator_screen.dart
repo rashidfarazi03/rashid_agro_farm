@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/ingredient_row.dart';
+import '../widgets/result_card.dart';
+import '../widgets/action_buttons.dart';
 class FeedCalculatorScreen extends StatefulWidget {
   const FeedCalculatorScreen({super.key});
 
@@ -86,6 +88,24 @@ void calculateFeed() {
  });
  savePrices();
 }
+Future<void> saveFormula() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  await prefs.setString(
+      '${selectedFeedType}_wheatQty', wheatQtyController.text);
+
+  await prefs.setString(
+      '${selectedFeedType}_riceQty', riceQtyController.text);
+
+  await prefs.setString(
+      '${selectedFeedType}_cornQty', cornQtyController.text);
+
+  await prefs.setString(
+      '${selectedFeedType}_soybeanQty', soybeanQtyController.text);
+
+  await prefs.setString(
+      '${selectedFeedType}_mustardQty', mustardQtyController.text);
+}
     void clearAll() {
   wheatQtyController.clear();
   wheatPriceController.clear();
@@ -130,15 +150,59 @@ void calculateFeed() {
   });
 }
 void loadFormula() {
-  if (selectedFeedType == "Pigeon") {
+  
+  final prefs = SharedPreferences.getInstance();
+
+prefs.then((sp) {
+  wheatQtyController.text =
+      sp.getString('${selectedFeedType}_wheatQty') ?? '';
+
+  riceQtyController.text =
+      sp.getString('${selectedFeedType}_riceQty') ?? '';
+
+  cornQtyController.text =
+      sp.getString('${selectedFeedType}_cornQty') ?? '';
+
+  soybeanQtyController.text =
+      sp.getString('${selectedFeedType}_soybeanQty') ?? '';
+
+  mustardQtyController.text =
+      sp.getString('${selectedFeedType}_mustardQty') ?? '';
+});
+
+  switch (selectedFeedType) {
+
+    case "Pigeon":
+  if (wheatQtyController.text.isEmpty) {
     wheatQtyController.text = "6";
     riceQtyController.text = "4";
     cornQtyController.text = "4";
     mustardQtyController.text = "0.5";
     peasQtyController.text = "0.5";
   }
+  break;
+
+    case "Broiler":
+  cornQtyController.text = "10";
+  soybeanQtyController.text = "5";
+  riceBranQtyController.text = "5";
+  wheatBranQtyController.text = "3";
+  fishMealQtyController.text = "1";
+  limestoneQtyController.text = "1";
+  break;
+
+    case "Layer":
+      break;
+
+    case "Sonali":
+      break;
+
+    case "Duck":
+      break;
+  }
 }
 Future<void> savePrices() async {
+  
   final prefs = await SharedPreferences.getInstance();
 
   await prefs.setString(
@@ -371,39 +435,13 @@ SizedBox(
 
 const SizedBox(height: 20),
 
-Card(
-  elevation: 4,
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "📦 Total Weight : ${totalWeight.toStringAsFixed(2)} Kg",
-          style: const TextStyle(fontSize: 18),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          "💰 Total Cost : ৳${totalCost.toStringAsFixed(2)}",
-          style: const TextStyle(fontSize: 18),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          "🏷 Cost / Kg : ৳${costPerKg.toStringAsFixed(2)}",
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-          ),
-        ),
-      ],
-    ),
-  ),
+ResultCard(
+  totalWeight: totalWeight,
+  totalCost: totalCost,
+  costPerKg: costPerKg,
 ),
+
+
           ],
         ),
       ),
