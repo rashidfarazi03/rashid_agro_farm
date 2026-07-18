@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../data/default_formulas.dart';
 import '../widgets/ingredient_row.dart';
 import '../widgets/result_card.dart';
-import '../widgets/action_buttons.dart';
 class FeedCalculatorScreen extends StatefulWidget {
   const FeedCalculatorScreen({super.key});
 
@@ -14,6 +15,7 @@ class FeedCalculatorScreen extends StatefulWidget {
 class _FeedCalculatorScreenState extends State<FeedCalculatorScreen> {
 
 String selectedFeedType = "Broiler";
+String selectedFormula = "Starter";
 final wheatQtyController = TextEditingController();
 final wheatPriceController = TextEditingController();
 
@@ -91,20 +93,21 @@ void calculateFeed() {
 Future<void> saveFormula() async {
   final prefs = await SharedPreferences.getInstance();
 
-  await prefs.setString(
-      '${selectedFeedType}_wheatQty', wheatQtyController.text);
+  String key = '${selectedFeedType}_${selectedFormula}';
 
-  await prefs.setString(
-      '${selectedFeedType}_riceQty', riceQtyController.text);
+  await prefs.setString('${key}_wheatQty', wheatQtyController.text);
+  await prefs.setString('${key}_riceQty', riceQtyController.text);
+  await prefs.setString('${key}_cornQty', cornQtyController.text);
+  await prefs.setString('${key}_soybeanQty', soybeanQtyController.text);
+  await prefs.setString('${key}_mustardQty', mustardQtyController.text);
 
-  await prefs.setString(
-      '${selectedFeedType}_cornQty', cornQtyController.text);
-
-  await prefs.setString(
-      '${selectedFeedType}_soybeanQty', soybeanQtyController.text);
-
-  await prefs.setString(
-      '${selectedFeedType}_mustardQty', mustardQtyController.text);
+  await prefs.setString('${key}_riceBranQty', riceBranQtyController.text);
+  await prefs.setString('${key}_wheatBranQty', wheatBranQtyController.text);
+  await prefs.setString('${key}_peasQty', peasQtyController.text);
+  await prefs.setString('${key}_khesariQty', khesariQtyController.text);
+  await prefs.setString('${key}_fishMealQty', fishMealQtyController.text);
+  await prefs.setString('${key}_meatBoneQty', meatBoneQtyController.text);
+  await prefs.setString('${key}_limestoneQty', limestoneQtyController.text);
 }
     void clearAll() {
   wheatQtyController.clear();
@@ -149,58 +152,92 @@ Future<void> saveFormula() async {
     costPerKg = 0;
   });
 }
-void loadFormula() {
-  
-  final prefs = SharedPreferences.getInstance();
+Future<void> loadFormula() async {
+  final prefs = await SharedPreferences.getInstance();
 
-prefs.then((sp) {
+  String key = '${selectedFeedType}_${selectedFormula}';
+
+  // Load Saved Formula
   wheatQtyController.text =
-      sp.getString('${selectedFeedType}_wheatQty') ?? '';
+      prefs.getString('${key}_wheatQty') ?? '';
 
   riceQtyController.text =
-      sp.getString('${selectedFeedType}_riceQty') ?? '';
+      prefs.getString('${key}_riceQty') ?? '';
 
   cornQtyController.text =
-      sp.getString('${selectedFeedType}_cornQty') ?? '';
+      prefs.getString('${key}_cornQty') ?? '';
 
   soybeanQtyController.text =
-      sp.getString('${selectedFeedType}_soybeanQty') ?? '';
+      prefs.getString('${key}_soybeanQty') ?? '';
 
   mustardQtyController.text =
-      sp.getString('${selectedFeedType}_mustardQty') ?? '';
-});
+      prefs.getString('${key}_mustardQty') ?? '';
 
-  switch (selectedFeedType) {
+  riceBranQtyController.text =
+      prefs.getString('${key}_riceBranQty') ?? '';
 
-    case "Pigeon":
-  if (wheatQtyController.text.isEmpty) {
-    wheatQtyController.text = "6";
-    riceQtyController.text = "4";
-    cornQtyController.text = "4";
-    mustardQtyController.text = "0.5";
-    peasQtyController.text = "0.5";
+  wheatBranQtyController.text =
+      prefs.getString('${key}_wheatBranQty') ?? '';
+
+  peasQtyController.text =
+      prefs.getString('${key}_peasQty') ?? '';
+
+  khesariQtyController.text =
+      prefs.getString('${key}_khesariQty') ?? '';
+
+  fishMealQtyController.text =
+      prefs.getString('${key}_fishMealQty') ?? '';
+
+  meatBoneQtyController.text =
+      prefs.getString('${key}_meatBoneQty') ?? '';
+
+  limestoneQtyController.text =
+      prefs.getString('${key}_limestoneQty') ?? '';
+
+  // Load Default Formula if no saved formula exists
+  final formula = defaultFormulas[selectedFeedType];
+
+  if (formula != null) {
+    wheatQtyController.text =
+        wheatQtyController.text.isEmpty ? (formula["wheat"] ?? "") : wheatQtyController.text;
+
+    riceQtyController.text =
+        riceQtyController.text.isEmpty ? (formula["rice"] ?? "") : riceQtyController.text;
+
+    cornQtyController.text =
+        cornQtyController.text.isEmpty ? (formula["corn"] ?? "") : cornQtyController.text;
+
+    soybeanQtyController.text =
+        soybeanQtyController.text.isEmpty ? (formula["soybean"] ?? "") : soybeanQtyController.text;
+
+    mustardQtyController.text =
+        mustardQtyController.text.isEmpty ? (formula["mustard"] ?? "") : mustardQtyController.text;
+
+    riceBranQtyController.text =
+        riceBranQtyController.text.isEmpty ? (formula["riceBran"] ?? "") : riceBranQtyController.text;
+
+    wheatBranQtyController.text =
+        wheatBranQtyController.text.isEmpty ? (formula["wheatBran"] ?? "") : wheatBranQtyController.text;
+
+    peasQtyController.text =
+        peasQtyController.text.isEmpty ? (formula["peas"] ?? "") : peasQtyController.text;
+
+    khesariQtyController.text =
+        khesariQtyController.text.isEmpty ? (formula["khesari"] ?? "") : khesariQtyController.text;
+
+    fishMealQtyController.text =
+        fishMealQtyController.text.isEmpty ? (formula["fishMeal"] ?? "") : fishMealQtyController.text;
+
+    meatBoneQtyController.text =
+        meatBoneQtyController.text.isEmpty ? (formula["meatBone"] ?? "") : meatBoneQtyController.text;
+
+    limestoneQtyController.text =
+        limestoneQtyController.text.isEmpty ? (formula["limestone"] ?? "") : limestoneQtyController.text;
   }
-  break;
 
-    case "Broiler":
-  cornQtyController.text = "10";
-  soybeanQtyController.text = "5";
-  riceBranQtyController.text = "5";
-  wheatBranQtyController.text = "3";
-  fishMealQtyController.text = "1";
-  limestoneQtyController.text = "1";
-  break;
-
-    case "Layer":
-      break;
-
-    case "Sonali":
-      break;
-
-    case "Duck":
-      break;
-  }
+  setState(() {});
 }
+
 Future<void> savePrices() async {
   
   final prefs = await SharedPreferences.getInstance();
@@ -301,6 +338,45 @@ void initState() {
   loadFormula();
 },
             ),
+const SizedBox(height: 15),
+
+const Text(
+  "Formula",
+  style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+  ),
+),
+
+const SizedBox(height: 10),
+
+DropdownButtonFormField<String>(
+  value: selectedFormula,
+  decoration: const InputDecoration(
+    border: OutlineInputBorder(),
+  ),
+  items: const [
+    DropdownMenuItem(
+      value: "Starter",
+      child: Text("Starter"),
+    ),
+    DropdownMenuItem(
+      value: "Grower",
+      child: Text("Grower"),
+    ),
+    DropdownMenuItem(
+      value: "Finisher",
+      child: Text("Finisher"),
+    ),
+  ],
+  onChanged: (value) {
+    setState(() {
+      selectedFormula = value!;
+    });
+
+    loadFormula();
+  },
+),
 
 const SizedBox(height: 20),
 
